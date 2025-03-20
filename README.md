@@ -1,3 +1,5 @@
+# GitCommitFrequencyData
+
 Some scripts that get the Git commit frequency so you can use it on a gh-like heatmap or whatever
 
 `GetCommitDates.py` just returns the total number of commits for each day and the total commits per repo per day.
@@ -27,3 +29,5 @@ This is how the outputted data looks for both repos (the values will differ betw
     ...
 }
 ```
+
+This code is just to get the data from git, the code that I use for generating the heatmap on my own site is visible on [the repo of my site :D](https://github.com/Gijs6/gijs6.nl)
