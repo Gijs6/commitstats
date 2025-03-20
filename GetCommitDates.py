@@ -34,5 +34,4 @@ def get_commit_dates(project_folders_list, repos_to_name):
                 all_commits_count[str(commit_date)]["repos"][repo_name] = 0
             all_commits_count[str(commit_date)]["repos"][repo_name] += 1
 
-    print(f"Done! {sum(all_commits_count.values())} commits found in {len(repos)} repos on {len(all_commits_count)} days!")
     return all_commits_count
