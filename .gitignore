@@ -1,0 +1,6 @@
+.venv/
+.idea/
+__pycache__/
+priv.py
+priv2.py
+*.json
