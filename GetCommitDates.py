@@ -4,6 +4,10 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 def get_commit_dates(project_folders_list, repos_to_name):
+    """
+    project_folders_list: list of folders with projects/repos in them
+    repos_to_name: all the repos the name of which should not be 'Other' (because I can't easily check if a repo is e.g. public or private on gh)
+    """
     all_commits_count = defaultdict(lambda: {"value": 0, "repos": {}})
 
     email = subprocess.check_output(["git", "config", "--get", "user.email"]).decode("utf-8").strip()
