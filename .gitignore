@@ -4,3 +4,4 @@ __pycache__/
 priv.py
 priv2.py
 *.json
+test.py
