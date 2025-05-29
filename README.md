@@ -1,4 +1,4 @@
-# GitCommitFrequencyData
+# CommitStats
 
 Some scripts that get the Git commit frequency so you can use it on a gh-like heatmap or whatever
 
