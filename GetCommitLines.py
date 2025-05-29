@@ -4,16 +4,19 @@ import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+
 def find_git_repos(folders):
     repos = []
     for folder in folders:
         for root, dirs, _ in os.walk(folder):
-            if '.git' in dirs:
+            if ".git" in dirs:
                 repos.append(root)
     return repos
 
+
 def should_ignore_file(file, ignored_extensions):
     return any(file.endswith(ext) for ext in ignored_extensions)
+
 
 def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result):
     current_date = None
@@ -22,7 +25,7 @@ def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result)
         if not line.strip():
             continue
 
-        match = re.match(r'([a-f0-9]+) (\d{4}-\d{2}-\d{2})', line.strip())
+        match = re.match(r"([a-f0-9]+) (\d{4}-\d{2}-\d{2})", line.strip())
         if match:
             commit, date = match.groups()
             if commit not in excluded_commits.get(repo_name, []):
@@ -37,8 +40,8 @@ def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result)
                 continue
 
             try:
-                added = int(parts[0]) if parts[0] != '-' else 0
-                deleted = int(parts[1]) if parts[1] != '-' else 0
+                added = int(parts[0]) if parts[0] != "-" else 0
+                deleted = int(parts[1]) if parts[1] != "-" else 0
                 file = parts[2]
             except ValueError:
                 continue
@@ -46,16 +49,21 @@ def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result)
             if not should_ignore_file(file, ignored_exts):
                 changes = added + deleted
                 result[current_date]["value"] += changes
-                result[current_date]["repos"][repo_name] = result[current_date]["repos"].get(repo_name, 0) + changes
+                result[current_date]["repos"][repo_name] = (
+                    result[current_date]["repos"].get(repo_name, 0) + changes
+                )
 
-def get_lines_changed_per_day(project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits):
+
+def get_lines_changed_per_day(
+    project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits
+):
     result = defaultdict(lambda: {"value": 0, "repos": {}})
     print(f"Searching for changes by: {', '.join(mails)}")
 
     repos = find_git_repos(project_folders)
     print(f"{len(repos)} repos found with a .git dir")
 
-    since = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+    since = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
     ignored_exts = set(file_extensions_to_ignore)
     known_repos = set(name.lower() for name in repos_to_name)
 
@@ -67,11 +75,25 @@ def get_lines_changed_per_day(project_folders, mails, repos_to_name, file_extens
 
         for email in mails:
             try:
-                log = subprocess.check_output(
-                    ["git", "log", "--since", since, "--author", email, "--numstat", "--pretty=format:%h %ad", "--date=short"],
-                    cwd=repo,
-                    stderr=subprocess.DEVNULL
-                ).decode("utf-8").splitlines()
+                log = (
+                    subprocess.check_output(
+                        [
+                            "git",
+                            "log",
+                            "--since",
+                            since,
+                            "--author",
+                            email,
+                            "--numstat",
+                            "--pretty=format:%h %ad",
+                            "--date=short",
+                        ],
+                        cwd=repo,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    .decode("utf-8")
+                    .splitlines()
+                )
 
                 parse_git_log(log, repo_name, ignored_exts, excluded_commits, result)
 
