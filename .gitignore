@@ -1,7 +1,5 @@
 .venv/
 .idea/
 __pycache__/
-priv.py
+test/
 priv2.py
-*.json
-test.py
