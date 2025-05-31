@@ -67,9 +67,15 @@ def get_lines_changed_per_day(
     ignored_exts = set(file_extensions_to_ignore)
     known_repos = set(name.lower() for name in repos_to_name)
 
+    excluded_repos = []
+
     for repo in repos:
         name = os.path.basename(repo)
-        repo_name = name if name.lower() in known_repos else "Other"
+        if name.lower() not in known_repos:
+            excluded_repos.append(name)
+            repo_name = "Other"
+        else:
+            repo_name = name
 
         print(f"Processing {repo_name}")
 
@@ -99,5 +105,5 @@ def get_lines_changed_per_day(
 
             except subprocess.CalledProcessError:
                 print(f"Error processing repo {repo_name} for email {email}")
-
+    print(f"Success! Repos that were excluded are {", ".join(excluded_repos)}")
     return result
