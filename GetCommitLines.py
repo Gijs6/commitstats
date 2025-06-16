@@ -70,11 +70,18 @@ def get_lines_changed_per_day(
     excluded_repos = []
 
     for repo in repos:
-        name = os.path.basename(repo)
+        try:
+            url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'], text=True, cwd=repo).strip()
+            name = url.split('/')[-1]
+            if name.endswith('.git'):
+                name = name[:-4]
+        except subprocess.CalledProcessError:
+            name = os.path.basename(repo)
+
         if name.lower() not in known_repos:
             excluded_repos.append(name)
             repo_name = "Other"
-        else:
+        else:        
             repo_name = name
 
         print(f"Processing {repo_name}")
