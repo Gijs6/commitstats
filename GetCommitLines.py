@@ -19,6 +19,7 @@ def should_ignore_file(file, ignored_extensions):
 
 
 def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result):
+    repo_name = repo_name.lower()
     current_date = None
 
     for line in log_output:
@@ -55,7 +56,7 @@ def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result)
 
 
 def get_lines_changed_per_day(
-    project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits
+    project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits, folder_labels=None
 ):
     result = defaultdict(lambda: {"value": 0, "repos": {}})
     print(f"Searching for changes by: {', '.join(mails)}")
@@ -71,9 +72,11 @@ def get_lines_changed_per_day(
 
     for repo in repos:
         try:
-            url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'], text=True, cwd=repo).strip()
-            name = url.split('/')[-1]
-            if name.endswith('.git'):
+            url = subprocess.check_output(
+                ["git", "remote", "get-url", "origin"], text=True, cwd=repo
+            ).strip()
+            name = url.split("/")[-1]
+            if name.endswith(".git"):
                 name = name[:-4]
         except subprocess.CalledProcessError:
             name = os.path.basename(repo)
@@ -81,10 +84,17 @@ def get_lines_changed_per_day(
         if name.lower() not in known_repos:
             excluded_repos.append(name)
             repo_name = "Other"
-        else:        
+            
+            # Check if repo path matches any folder patterns for custom labeling
+            if folder_labels:
+                for folder_path, label in folder_labels.items():
+                    if repo.startswith(folder_path):
+                        repo_name = label
+                        break
+        else:
             repo_name = name
 
-        print(f"Processing {repo_name}")
+        print(f"Processing {repo_name} ({repo})")
 
         for email in mails:
             try:
@@ -112,5 +122,5 @@ def get_lines_changed_per_day(
 
             except subprocess.CalledProcessError:
                 print(f"Error processing repo {repo_name} for email {email}")
-    print(f"Success! Repos that were excluded are {", ".join(excluded_repos)}")
+    print(f"Success! Repos that were excluded are {', '.join(excluded_repos)}")
     return result
