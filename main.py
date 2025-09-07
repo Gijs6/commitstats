@@ -94,13 +94,10 @@ def get_lines_changed_per_day(
 
     for repo in repos:
         repo_name = get_repo_name(repo)
-        
-        if repo_name.lower() not in known_repos:
-            excluded_repos.append(repo_name)
-        
         repo_label = determine_repo_label(repo, repo_name, known_repos, folder_labels)
         print(f"Processing {repo_label} ({repo})")
 
+        has_user_changes = False
         for email in mails:
             try:
                 log = subprocess.check_output(
@@ -120,10 +117,16 @@ def get_lines_changed_per_day(
                     text=True
                 ).splitlines()
 
+                if log and any(line.strip() for line in log):
+                    has_user_changes = True
+
                 parse_git_log(log, repo_label, ignored_exts, excluded_commits, result)
 
             except subprocess.CalledProcessError:
                 print(f"Error processing repo {repo_label} for email {email}")
+        
+        if repo_name.lower() not in known_repos and has_user_changes:
+            excluded_repos.append(repo_name)
     
     print(f"Success! Repos that were excluded are {', '.join(excluded_repos)}")
     return result
