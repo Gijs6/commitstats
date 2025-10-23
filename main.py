@@ -79,13 +79,15 @@ def parse_git_log(log_output, repo_name, ignored_exts, excluded_commits, result)
 
 
 def get_lines_changed_per_day(
-    project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits, folder_labels=None
+    project_folders, mails, repos_to_name, file_extensions_to_ignore, excluded_commits, folder_labels=None, verbose=False
 ):
     result = defaultdict(lambda: {"value": 0, "repos": {}})
-    print(f"Searching for changes by: {', '.join(mails)}")
+    if verbose:
+        print(f"Searching for changes by: {', '.join(mails)}")
 
     repos = find_git_repos(project_folders)
-    print(f"{len(repos)} repos found with a .git dir")
+    if verbose:
+        print(f"{len(repos)} repos found with a .git dir")
 
     since = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
     ignored_exts = set(file_extensions_to_ignore)
@@ -95,7 +97,8 @@ def get_lines_changed_per_day(
     for repo in repos:
         repo_name = get_repo_name(repo)
         repo_label = determine_repo_label(repo, repo_name, known_repos, folder_labels)
-        print(f"Processing {repo_label} ({repo})")
+        if verbose:
+            print(f"Processing {repo_label} ({repo})")
 
         has_user_changes = False
         for email in mails:
