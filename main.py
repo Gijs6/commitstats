@@ -21,7 +21,7 @@ def should_ignore_file(file, ignored_extensions):
 def get_repo_name(repo_path):
     try:
         url = subprocess.check_output(
-            ["git", "remote", "get-url", "origin"], text=True, cwd=repo_path
+            ["git", "remote", "get-url", "origin"], text=True, cwd=repo_path, stderr=subprocess.DEVNULL
         ).strip()
         name = url.split("/")[-1]
         if name.endswith(".git"):
