@@ -3,3 +3,4 @@
 __pycache__/
 test/
 priv2.py
+log.txt

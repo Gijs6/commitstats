@@ -1,8 +1,25 @@
 import os
 import subprocess
 import re
+import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
+
+
+def setup_logging():
+    log_dir = os.path.join(os.path.expanduser("~"), ".local", "share", "commitstats", "logs")
+    os.makedirs(log_dir, exist_ok=True)
+
+    log_file = os.path.join(log_dir, "commitstats.log")
+
+    logging.basicConfig(
+        level=logging.WARNING,
+        format='%(asctime)s - %(message)s',
+        filename=log_file
+    )
+
+
+setup_logging()
 
 
 def find_git_repos(folders):
@@ -126,8 +143,7 @@ def get_lines_changed_per_day(
                 parse_git_log(log, repo_label, ignored_exts, excluded_commits, result)
 
             except subprocess.CalledProcessError:
-                with open("log.txt", "a") as log_file:
-                    log_file.write(f"Error processing repo {repo_label} for email {email}\n")
+                logging.warning(f"Error processing repo {repo_label} for email {email}")
         
         if repo_name.lower() not in known_repos and has_user_changes:
             excluded_repos.append(repo_name)
